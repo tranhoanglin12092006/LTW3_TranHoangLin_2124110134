@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microservices Frontend - Lab 01</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #16a34a;
+            --error: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            padding: 2rem 1rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Kiến trúc Microservices banner */
+        .architecture-banner {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .service-node {
+            background: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .service-node .name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .service-node .port {
+            font-size: 0.8rem;
+            color: var(--primary);
+            font-family: monospace;
+        }
+
+        .arrow {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 500;
+        }
+
+        .badge-product {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-order {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.65rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background-color 0.15s ease-in-out;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .form-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        input[type="number"] {
+            flex: 1;
+            padding: 0.65rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        ul#productList {
+            list-style: none;
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-height: 120px;
+        }
+
+        ul#productList li {
+            padding: 0.75rem 1rem;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+        }
+
+        pre#result {
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-family: "Fira Code", monospace, Consolas;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            min-height: 120px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Frontend – index.html</h1>
+            <p>HTML + JavaScript fetch() kết nối Spring Boot Microservices</p>
+        </header>
+
+        <!-- Sơ đồ kiến trúc luồng dữ liệu -->
+        <div class="architecture-banner">
+            <div class="service-node">
+                <div class="name">Product Service</div>
+                <div class="port">Port 8081</div>
+            </div>
+            <div class="arrow">⇄</div>
+            <div class="service-node">
+                <div class="name">Frontend Client</div>
+                <div class="port">index.html</div>
+            </div>
+            <div class="arrow">⇄</div>
+            <div class="service-node">
+                <div class="name">Order Service</div>
+                <div class="port">Port 8082</div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Phần 1: Tải danh sách trực tiếp từ Product Service -->
+            <div class="card">
+                <h2>
+                    Danh sách sản phẩm
+                    <span class="badge badge-product">Direct: Port 8081</span>
+                </h2>
+                <button onclick="loadProducts()">Tải danh sách sản phẩm</button>
+                <ul id="productList"></ul>
+            </div>
+
+            <!-- Phần 2: Tìm sản phẩm qua Order Service (Microservice to Microservice) -->
+            <div class="card">
+                <h2>
+                    Tìm sản phẩm thông qua Order Service
+                    <span class="badge badge-order">Proxy: Port 8082</span>
+                </h2>
+                <div class="form-group">
+                    <input type="number" id="productId" placeholder="Nhập ID sản phẩm" min="1">
+                    <button onclick="findProduct()">Tìm sản phẩm</button>
+                </div>
+                <pre id="result">Vui lòng nhập ID và nhấn "Tìm sản phẩm"...</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Gọi API lấy danh sách sản phẩm từ Product Service (Port 8081)
+        async function loadProducts() {
+            try {
+                const response = await fetch("http://localhost:8081/api/products");
+                if (!response.ok) {
+                    throw new Error("Không thể tải danh sách sản phẩm");
+                }
+                const products = await response.json();
+                const list = document.getElementById("productList");
+                list.innerHTML = "";
+                if (products.length === 0) {
+                    list.textContent = "Chưa có sản phẩm";
+                    return;
+                }
+                products.forEach(product => {
+                    const li = document.createElement("li");
+                    li.textContent = `${product.id} - ${product.name}`;
+                    list.appendChild(li);
+                });
+            } catch (error) {
+                document.getElementById("productList").textContent = "Lỗi: " + error.message;
+            }
+        }
+
+        // Gọi API tìm sản phẩm thông qua Order Service (Port 8082)
+        async function findProduct() {
+            const id = document.getElementById("productId").value;
+            const result = document.getElementById("result");
+
+            if (!id || !Number.isInteger(Number(id)) || Number(id) < 1) {
+                result.textContent = "Vui lòng nhập ID hợp lệ";
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8082/api/orders/product/${id}`);
+                if (response.status === 404) {
+                    result.textContent = "Không tìm thấy sản phẩm";
+                    return;
+                }
+                if (!response.ok) {
+                    throw new Error("Không thể lấy thông tin sản phẩm");
+                }
+                const product = await response.json();
+                result.textContent = JSON.stringify(product, null, 2);
+            } catch (error) {
+                result.textContent = "Lỗi: " + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
